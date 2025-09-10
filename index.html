@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wildcard DNS Checker</title>
   <style>
-    /* General body styling */
+    /* Body styling */
     body {
       background-color: #0d0d0d;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -17,16 +17,17 @@
       color: #eee;
     }
 
-    /* Container panel */
+    /* Main container */
     .container {
       background-color: #1a1a1a;
-      padding: 2rem;
+      padding: 2.5rem;
       border-radius: 2rem;
       box-shadow: 0 10px 40px rgba(0,0,0,0.7);
-      max-width: 450px;
+      max-width: 500px;
       width: 100%;
       text-align: center;
       backdrop-filter: blur(5px);
+      transition: all 0.3s ease-in-out;
     }
 
     h1 {
@@ -36,7 +37,6 @@
       text-shadow: 0 0 10px rgba(155,85,182,0.7);
     }
 
-    /* Input styling */
     input {
       width: calc(100% - 2rem);
       padding: 0.75rem 1rem;
@@ -56,7 +56,6 @@
       box-shadow: inset 0 0 12px rgba(155,85,182,0.6);
     }
 
-    /* Button styling */
     button {
       padding: 0.75rem 1.5rem;
       border-radius: 1rem;
@@ -84,12 +83,13 @@
       border-radius: 1rem;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
       font-size: 0.9rem;
+      white-space: pre-wrap;
     }
 
-    /* Scrollbar styling */
     #output::-webkit-scrollbar {
       width: 8px;
     }
+
     #output::-webkit-scrollbar-thumb {
       background-color: #9b59b6;
       border-radius: 4px;
@@ -98,7 +98,6 @@
     #output::-webkit-scrollbar-track {
       background-color: #111;
     }
-
   </style>
 </head>
 <body>
@@ -113,22 +112,24 @@
     function randomSubdomain(length = 12) {
       const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
       let result = "";
-      for(let i=0;i<length;i++){
+      for (let i = 0; i < length; i++) {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
       }
       return result;
     }
 
     async function resolveDomain(domain) {
-      const url = `https://cloudflare-dns.com/dns-query?name=${domain}&type=A`;
+      // Google DNS-over-HTTPS endpoint (HTTPS friendly)
+      const url = `https://dns.google/resolve?name=${domain}&type=A`;
       try {
-        const response = await fetch(url, { headers: { "Accept": "application/dns-json" } });
+        const response = await fetch(url);
         const data = await response.json();
         if (data.Answer) {
           return data.Answer.map(a => a.data);
         }
         return [];
       } catch (e) {
+        console.error("DNS query error:", e);
         return [];
       }
     }
